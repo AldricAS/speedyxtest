@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedX TEST</title>
+    <style>
+        :root {
+            --primary: #ff6600; 
+            --secondary: #003366; 
+            --bg: #ffffff;
+            --light: #f8f9fa;
+        }
+
+        body {
+            margin: 0; font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg); color: #333;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        .container { width: 90%; max-width: 400px; text-align: center; padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+        .network-box {
+            background: var(--light); padding: 15px; border-radius: 20px;
+            margin-bottom: 25px; border: 1px solid #eee;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;
+        }
+        .net-item { display: flex; flex-direction: column; }
+        .isp-label { font-size: 0.65rem; font-weight: bold; color: var(--secondary); text-transform: uppercase; opacity: 0.7; }
+        .isp-val { font-size: 0.9rem; font-weight: 800; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .full-width { grid-column: span 2; border-top: 1px solid #ddd; pt-2; margin-top: 5px; padding-top: 8px; }
+
+        h1 { font-size: 2rem; margin: 0 0 10px; color: var(--secondary); letter-spacing: -1px; }
+        h1 span { color: var(--primary); }
+
+        .speed-main { margin: 30px 0; }
+        #main-speed { font-size: 6rem; font-weight: 900; margin: 0; line-height: 1; color: var(--secondary); font-variant-numeric: tabular-nums; }
+        #status-text { font-size: 1rem; font-weight: 800; color: var(--primary); letter-spacing: 3px; text-transform: uppercase; margin-top: 10px; }
+
+        .progress-line { height: 8px; background: #eee; border-radius: 10px; margin: 25px 0; overflow: hidden; position: relative; }
+        #p-bar { 
+            height: 100%; width: 0%; background: var(--primary); 
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
+            transition: width 0.3s linear; 
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .box { background: var(--light); padding: 12px; border-radius: 15px; text-align: left; border: 1px solid #eee; }
+        .label { font-size: 0.6rem; color: #888; text-transform: uppercase; font-weight: bold; }
+        .val { font-size: 1.1rem; font-weight: 800; color: var(--secondary); display: block; }
+
+        #rating-box { display: none; background: #fff9f0; padding: 15px; border-radius: 15px; border: 1px solid #ffe0b3; margin-bottom: 20px; }
+        #stars { color: #ffcc00; font-size: 1.8rem; margin-bottom: 5px; }
+        #rating-text { font-weight: 900; color: var(--primary); text-transform: uppercase; font-size: 0.9rem; }
+
+        button {
+            background: var(--secondary); color: white; border: none; padding: 20px; 
+            width: 100%; border-radius: 18px; font-size: 1.1rem; font-weight: 800; 
+            cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background: #002244; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+
+        footer { padding: 20px; font-size: 0.75rem; color: #999; font-weight: 600; letter-spacing: 1px; }
+        footer span { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SpeedX <span>TEST</span></h1>
+
+    <div class="network-box">
+        <div class="net-item">
+            <span class="isp-label">Provider</span>
+            <span class="isp-val" id="isp-display">Detecting...</span>
+        </div>
+        <div class="net-item">
+            <span class="isp-label">Server (Cloudflare)</span>
+            <span class="isp-val" id="server-display">Detecting...</span>
+        </div>
+        <div class="net-item full-width">
+            <span class="isp-label">Alamat IP & Lokasi</span>
+            <span id="ip-display" style="font-size: 0.75rem; color: #777; font-weight: bold;">Scanning...</span>
+        </div>
+    </div>
+
+    <div class="speed-main">
+        <p id="main-speed">0.0</p>
+        <p id="status-text">Ready</p>
+        <div class="progress-line"><div id="p-bar"></div></div>
+    </div>
+
+    <div class="grid">
+        <div class="box">
+            <span class="label">Ping / Jitter</span>
+            <span class="val"><span id="ping">-</span> / <span id="jitter">-</span> <small style="font-size: 0.6rem">ms</small></span>
+        </div>
+        <div class="box">
+            <span class="label">Download</span>
+            <span class="val" id="down-val">0.0 <small style="font-size: 0.6rem">Mbps</small></span>
+        </div>
+        <div class="box">
+            <span class="label">Upload</span>
+            <span class="val" id="up-val">0.0 <small style="font-size: 0.6rem">Mbps</small></span>
+        </div>
+        <div class="box">
+            <span class="label">Data Flow</span>
+            <span class="val" id="proc-val">0.0 <small style="font-size: 0.6rem">MB/s</small></span>
+        </div>
+    </div>
+
+    <div id="rating-box">
+        <div id="stars"></div>
+        <div id="rating-text"></div>
+    </div>
+
+    <button id="btn" onclick="runTest()">MULAI</button>
+</div>
+
+<footer>made by <span>aldric</span></footer>
+
+<script>
+    const DOWN_API = "https://speed.cloudflare.com";
+    const UP_API = "https://httpbin.org/post";
+    let results = { down: 0, up: 0 };
+    let displayValue = 0;
+    let targetValue = 0;
+    let isAnimating = false;
+
+    // Deteksi ISP & Server Cloudflare Terdekat
+    async function getNetworkDetails() {
+        try {
+            // 1. Ambil data Geografis & ISP
+            const geoRes = await fetch('https://ipapi.co/json/');
+            const geoData = await geoRes.json();
+            document.getElementById('isp-display').innerText = geoData.org || "Connected";
+            document.getElementById('ip-display').innerText = `${geoData.ip} • ${geoData.city}, ${geoData.country_name}`;
+
+            // 2. Ambil data Server Cloudflare (PoP)
+            const cfRes = await fetch(DOWN_API + '/cdn-cgi/trace');
+            const cfText = await cfRes.text();
+            
+            // Mencari baris "colo=XXX" (Kode bandara lokasi server)
+            const lines = cfText.split('\n');
+            const coloLine = lines.find(line => line.startsWith('colo='));
+            if (coloLine) {
+                const coloCode = coloLine.split('=')[1];
+                // Mengubah kode menjadi nama kota sederhana jika memungkinkan
+                const locations = { 'CGK': 'Jakarta', 'SIN': 'Singapore', 'SUB': 'Surabaya', 'HKG': 'Hong Kong' };
+                document.getElementById('server-display').innerText = locations[coloCode] || coloCode;
+            }
+        } catch (e) {
+            document.getElementById('isp-display').innerText = "Online";
+            document.getElementById('server-display').innerText = "Cloudflare Edge";
+            document.getElementById('ip-display').innerText = "Koneksi Terhubung";
+        }
+    }
+    getNetworkDetails();
+
+    function updateDisplay() {
+        if (!isAnimating) return;
+        let diff = targetValue - displayValue;
+        if (Math.abs(diff) < 0.1) {
+            displayValue = targetValue;
+            isAnimating = false;
+        } else {
+            displayValue += diff * 0.15;
+        }
+        document.getElementById('main-speed').innerText = displayValue.toFixed(1);
+        if (isAnimating) requestAnimationFrame(updateDisplay);
+    }
+
+    async function runTest() {
+        const btn = document.getElementById('btn');
+        btn.disabled = true;
+        document.getElementById('rating-box').style.display = "none";
+        displayValue = 0;
+        targetValue = 0;
+
+        document.getElementById('status-text').innerText = "Cek Latensi...";
+        let pings = [];
+        for(let i=0; i<8; i++) {
+            const start = performance.now();
+            await fetch(DOWN_API + "/cdn-cgi/trace", { cache: "no-store" }).catch(()=>{});
+            pings.push(performance.now() - start);
+            document.getElementById('ping').innerText = Math.round(pings[pings.length-1]);
+        }
+        document.getElementById('jitter').innerText = Math.round(Math.max(...pings) - Math.min(...pings));
+
+        await measure('DOWN');
+        await measure('UP');
+
+        btn.disabled = false;
+        btn.innerText = "MULAI LAGI";
+        document.getElementById('status-text').innerText = "Mbps";
+        showRating();
+    }
+
+    function measure(mode) {
+        return new Promise(resolve => {
+            const isDown = mode === 'DOWN';
+            document.getElementById('status-text').innerText = isDown ? "Mengunduh..." : "Mengunggah...";
+            const start = performance.now();
+            const xhr = new XMLHttpRequest();
+            const url = isDown ? `${DOWN_API}/__down?bytes=30000000` : UP_API;
+            
+            xhr.open(isDown ? "GET" : "POST", url + "?cb=" + Math.random(), true);
+            const target = isDown ? xhr : xhr.upload;
+            
+            target.onprogress = (e) => {
+                const elapsed = (performance.now() - start) / 1000;
+                if (elapsed > 10) { xhr.abort(); resolve(); }
+                const mbps = ((e.loaded * 8) / elapsed) / 1000000;
+                const mbs = (e.loaded / elapsed) / 1048576;
+                
+                targetValue = mbps;
+                if (!isAnimating) {
+                    isAnimating = true;
+                    requestAnimationFrame(updateDisplay);
+                }
+
+                document.getElementById('p-bar').style.width = (elapsed/10 * 100) + "%";
+                document.getElementById('proc-val').innerHTML = `${mbs.toFixed(1)} <small>MB/s</small>`;
+                
+                if (isDown) {
+                    document.getElementById('down-val').innerText = mbps.toFixed(1);
+                    results.down = mbps;
+                } else {
+                    document.getElementById('up-val').innerText = mbps.toFixed(1);
+                    results.up = mbps;
+                }
+            };
+
+            xhr.onload = xhr.onerror = () => {
+                targetValue = 0;
+                resolve();
+            };
+
+            if (isDown) xhr.send();
+            else {
+                const data = new Uint8Array(15 * 1024 * 1024);
+                xhr.send(data);
+            }
+        });
+    }
+
+    function showRating() {
+        isAnimating = false;
+        const speed = results.down;
+        document.getElementById('main-speed').innerText = speed.toFixed(1);
+        const score = speed > 50 ? 6 : speed > 30 ? 5 : speed > 15 ? 4 : speed > 5 ? 3 : 2;
+        const msgs = ["Sangat Lambat", "Cukup Stabil", "Bagus", "Cepat", "Sangat Cepat", "Luar Biasa!"];
+        document.getElementById('stars').innerText = "★".repeat(score) + "☆".repeat(6-score);
+        document.getElementById('rating-text').innerText = msgs[score-1];
+        document.getElementById('rating-box').style.display = "block";
+        document.getElementById('p-bar').style.width = "100%";
+    }
+</script>
+</body>
+  </html>
